@@ -19,8 +19,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -51,6 +53,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,9 +65,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.onitask.ui.theme.BTNs
-import com.example.onitask.ui.theme.BTNsUnfocused
 import com.example.onitask.ui.theme.mainBGC
 import com.example.onitask.ui.theme.secondary
+import com.example.onitask.ui.theme.textFieldUnfocused
+import com.example.onitask.ui.theme.textFieldfocused
 
 
 class MainActivity : ComponentActivity() {
@@ -153,7 +159,7 @@ fun LoginComp(navController: NavController){
     var enteredUsername by remember {
         mutableStateOf("")
     }
-    var enteredPassword= remember {
+    var enteredPassword by remember {
         mutableStateOf("")
     }
 
@@ -175,7 +181,7 @@ fun LoginComp(navController: NavController){
             maxLines = 1,
             singleLine=true,
             textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
-            colors = TextFieldDefaults.colors(focusedContainerColor = BTNs, unfocusedContainerColor = BTNsUnfocused, focusedLabelColor = Color.Black),
+            colors = TextFieldDefaults.colors(focusedContainerColor = textFieldfocused, unfocusedContainerColor = textFieldUnfocused, focusedLabelColor = Color.Black),
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Person,
@@ -184,6 +190,27 @@ fun LoginComp(navController: NavController){
             },
 
             )
+
+        Spacer(modifier = Modifier.height(30.dp))
+        TextField(
+            value = enteredPassword, onValueChange = { new -> enteredPassword = new },
+            label = { Text(text = "Password") },
+            modifier = Modifier
+                .fillMaxWidth(0.8f),
+            shape = RoundedCornerShape(10.dp),
+            maxLines = 1,
+            singleLine=true,
+            textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+            colors = TextFieldDefaults.colors(focusedContainerColor = textFieldfocused, unfocusedContainerColor = textFieldUnfocused, focusedLabelColor = Color.Black),
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "usernameIcon",
+                )
+            },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        )
 
         BackBTN(navController = navController )
     }
