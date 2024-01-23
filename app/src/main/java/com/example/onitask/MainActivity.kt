@@ -69,6 +69,7 @@ import androidx.room.Room
 import com.example.onitask.ui.theme.BTNs
 import com.example.onitask.ui.theme.mainBGC
 import com.example.onitask.ui.theme.secondary
+import com.example.onitask.ui.theme.secondaryBGC
 import com.example.onitask.ui.theme.textFieldUnfocused
 import com.example.onitask.ui.theme.textFieldfocused
 
@@ -228,7 +229,8 @@ fun LoginComp(navController: NavController){
             Button(onClick = { /*TODO*/ }, modifier = Modifier
                 .width(120.dp)
                 .height(60.dp), shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BTNs)) {
+                colors = ButtonDefaults.buttonColors(containerColor = BTNs),
+                elevation = ButtonDefaults.buttonElevation(10.dp)) {
                 Text(text = "Login !", fontSize = 20.sp)
             }
         }
@@ -245,67 +247,83 @@ fun SignupComp(navController: NavController){
     var enteredPassword by remember {
         mutableStateOf("")
     }
-
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .fillMaxWidth(0.8f)
-        .padding(20.dp)
-        .background(color = mainBGC),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-
-        Text(text = "Signup Page", fontSize = 30.sp, color = secondary)
-
-        TextField(
-            value = enteredUsername, onValueChange = { new -> enteredUsername = new },
-            label = { Text(text = "Username") },
+    Box(modifier = Modifier.background(color = secondaryBGC )) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            maxLines = 1,
-            singleLine=true,
-            textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
-            colors = TextFieldDefaults.colors(focusedContainerColor = textFieldfocused, unfocusedContainerColor = textFieldUnfocused, focusedLabelColor = Color.Black),
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "usernameIcon",
-                )
-            },
+                .fillMaxSize()
+                .fillMaxWidth(0.8f)
+                .padding(20.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
+            Text(text = "Signup Page", fontSize = 30.sp, color = secondary)
+
+            TextField(
+                value = enteredUsername, onValueChange = { new -> enteredUsername = new },
+                label = { Text(text = "Username") },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                maxLines = 1,
+                singleLine = true,
+                textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = textFieldfocused,
+                    unfocusedContainerColor = textFieldUnfocused,
+                    focusedLabelColor = Color.Black
+                ),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "usernameIcon",
+                    )
+                },
+
+                )
+
+            Spacer(modifier = Modifier.height(30.dp))
+            TextField(
+                value = enteredPassword, onValueChange = { new -> enteredPassword = new },
+                label = { Text(text = "Password") },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                maxLines = 1,
+                singleLine = true,
+                textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = textFieldfocused,
+                    unfocusedContainerColor = textFieldUnfocused,
+                    focusedLabelColor = Color.Black
+                ),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "usernameIcon",
+                    )
+                },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
-
-        Spacer(modifier = Modifier.height(30.dp))
-        TextField(
-            value = enteredPassword, onValueChange = { new -> enteredPassword = new },
-            label = { Text(text = "Password") },
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
-            maxLines = 1,
-            singleLine=true,
-            textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
-            colors = TextFieldDefaults.colors(focusedContainerColor = textFieldfocused, unfocusedContainerColor = textFieldUnfocused, focusedLabelColor = Color.Black),
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = "usernameIcon",
-                )
-            },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        //submit button
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            BackBTN(navController = navController )
-            Button(onClick = { /*TODO*/ }, modifier = Modifier
-                .width(130.dp)
-                .height(60.dp), shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BTNs)) {
-                Text(text = "Signup !", fontSize = 20.sp)
+            Spacer(modifier = Modifier.height(20.dp))
+            //submit button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                BackBTN(navController = navController)
+                Button(
+                    onClick = { /*TODO*/ }, modifier = Modifier
+                        .width(130.dp)
+                        .height(60.dp), shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = BTNs),
+                    elevation = ButtonDefaults.buttonElevation(10.dp)
+                ) {
+                    Text(text = "Signup !", fontSize = 20.sp)
+                }
             }
-        }
 
+        }
     }
 }
