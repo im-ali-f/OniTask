@@ -50,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -61,11 +62,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import com.example.onitask.data.room.models.Account
+import com.example.onitask.data.room.models.db
+import com.example.onitask.data.room.models.repo
+import com.example.onitask.repository.viewmodel
 import com.example.onitask.ui.theme.BTNs
 import com.example.onitask.ui.theme.mainBGC
 import com.example.onitask.ui.theme.secondary
@@ -79,16 +85,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             //nav section
-            val navStat= rememberNavController()// in page hamono navigate mikone
+            val navStat= rememberNavController() // in page hamono navigate mikone
+            val context= LocalContext.current
+            val db= db.getInstance(context)
+            val repo= repo(db)
+            val view= viewmodel(repo)
             NavHost(navController = navStat, startDestination = "loginSignupPage" ){
                 composable(route="loginSignupPage"){
                     LoginSignupComp(navController=navStat)
                 }
                 composable(route="loginPage"){
-                    LoginComp(navController=navStat)
+                    LoginComp(navController=navStat,view)
                 }
                 composable(route="signupPage"){
-                    SignupComp(navController=navStat)
+                    SignupComp(navController=navStat,view)
                 }
             }
         }
@@ -165,7 +175,7 @@ fun LoginSignupComp(navController: NavController){
 // login page
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginComp(navController: NavController){
+fun LoginComp(navController: NavController, viewmodel: viewmodel){
     var enteredUsername by remember {
         mutableStateOf("")
     }
@@ -240,7 +250,7 @@ fun LoginComp(navController: NavController){
 }
 
 @Composable
-fun SignupComp(navController: NavController){
+fun SignupComp(navController: NavController ,viewmodel: viewmodel){
     var enteredUsername by remember {
         mutableStateOf("")
     }
@@ -314,7 +324,7 @@ fun SignupComp(navController: NavController){
             ) {
                 BackBTN(navController = navController)
                 Button(
-                    onClick = { /*TODO*/ }, modifier = Modifier
+                    onClick = { viewmodel.userManage(Account(0,enteredUsername,enteredPassword))}, modifier = Modifier
                         .width(130.dp)
                         .height(60.dp), shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BTNs),
