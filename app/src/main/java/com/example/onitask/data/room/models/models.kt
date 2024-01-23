@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "account")
-data class account(
+data class Account(
     @ColumnInfo(name = "user_id")
     @PrimaryKey(autoGenerate = true)
     val id:Int=0,
@@ -14,7 +14,7 @@ data class account(
 )
 
 @Entity(tableName = "task")
-data class task(
+data class Task(
     @ColumnInfo(name="task_id")
     @PrimaryKey(autoGenerate = true)
     val id:Int=0,
