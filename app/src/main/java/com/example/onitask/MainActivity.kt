@@ -12,6 +12,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -95,9 +96,13 @@ fun BackBTN(navController: NavController) {
     Box() {
     FloatingActionButton(
         onClick = { navController.popBackStack() },
-        modifier = Modifier.align(Alignment.BottomEnd)
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .width(60.dp)
+            .height(60.dp),
+        containerColor = secondary,
     ) {
-        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Arrow Back")
+        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Arrow Back", tint = Color.White)
     }
 }
 }
@@ -165,6 +170,7 @@ fun LoginComp(navController: NavController){
 
     Column(modifier = Modifier
         .fillMaxSize()
+        .fillMaxWidth(0.8f)
         .padding(20.dp)
         .background(color = mainBGC),
         verticalArrangement = Arrangement.Center,
@@ -176,7 +182,7 @@ fun LoginComp(navController: NavController){
             value = enteredUsername, onValueChange = { new -> enteredUsername = new },
             label = { Text(text = "Username") },
             modifier = Modifier
-                .fillMaxWidth(0.8f),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             maxLines = 1,
             singleLine=true,
@@ -196,7 +202,7 @@ fun LoginComp(navController: NavController){
             value = enteredPassword, onValueChange = { new -> enteredPassword = new },
             label = { Text(text = "Password") },
             modifier = Modifier
-                .fillMaxWidth(0.8f),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(10.dp),
             maxLines = 1,
             singleLine=true,
@@ -211,8 +217,18 @@ fun LoginComp(navController: NavController){
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
+        Spacer(modifier = Modifier.height(20.dp))
+        //submit button
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            BackBTN(navController = navController )
+            Button(onClick = { /*TODO*/ }, modifier = Modifier
+                .width(120.dp)
+                .height(60.dp), shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = BTNs)) {
+                Text(text = "Login !", fontSize = 20.sp)
+            }
+        }
 
-        BackBTN(navController = navController )
     }
 
 }
