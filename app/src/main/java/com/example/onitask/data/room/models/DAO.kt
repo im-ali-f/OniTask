@@ -11,6 +11,9 @@ interface accountDAO{
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun createUser(account: Account)
 
-    @Query("select * FROM account WHERE user_id =:userName AND password =:userPass")
-    fun getUser(userName:Int,userPass:String): Flow<Account>
+    @Query("select * FROM account WHERE username=:userName")
+    fun userExistance(userName: String):Flow<List<Account>>
+
+    @Query("select * FROM account WHERE username =:userName AND password =:userPass")
+    fun getUser(userName:String,userPass:String): Flow<Account>
 }

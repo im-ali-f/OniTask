@@ -1,8 +1,8 @@
 package com.example.onitask.data.room.models
 
 class repo(val db: db) {
-    suspend fun accManager(account: Account){
+    suspend fun createAcc(account: Account){
         db.accDAO().createUser(account)
-        db.accDAO().getUser(0,"")
     }
+    fun userExistance(userName:String)= db.accDAO().userExistance(userName)
 }

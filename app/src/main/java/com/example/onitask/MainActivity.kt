@@ -1,6 +1,8 @@
 package com.example.onitask
 
+import android.health.connect.datatypes.units.Length
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.R
 import androidx.activity.compose.setContent
@@ -41,6 +43,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -58,6 +62,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,11 +78,15 @@ import com.example.onitask.data.room.models.db
 import com.example.onitask.data.room.models.repo
 import com.example.onitask.repository.viewmodel
 import com.example.onitask.ui.theme.BTNs
+import com.example.onitask.ui.theme.errorBGC
+import com.example.onitask.ui.theme.errorText
 import com.example.onitask.ui.theme.mainBGC
 import com.example.onitask.ui.theme.secondary
 import com.example.onitask.ui.theme.secondaryBGC
 import com.example.onitask.ui.theme.textFieldUnfocused
 import com.example.onitask.ui.theme.textFieldfocused
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectIndexed
 
 
 class MainActivity : ComponentActivity() {
@@ -258,6 +267,10 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
         mutableStateOf("")
     }
     Box(modifier = Modifier.background(color = secondaryBGC )) {
+        var usernameExsitanceBoolean by remember {
+            mutableStateOf(false)
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -267,7 +280,13 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+
             Text(text = "Signup Page", fontSize = 30.sp, color = secondary)
+
+            if (usernameExsitanceBoolean){
+                Text(text = "username exists !", textAlign = TextAlign.Center, modifier = Modifier
+                    .fillMaxWidth(), color = errorText,fontSize = 20.sp)
+            }
 
             TextField(
                 value = enteredUsername, onValueChange = { new -> enteredUsername = new },
@@ -283,6 +302,7 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
                     unfocusedContainerColor = textFieldUnfocused,
                     focusedLabelColor = Color.Black
                 ),
+                isError = usernameExsitanceBoolean,
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Person,
@@ -293,6 +313,21 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
                 )
 
             Spacer(modifier = Modifier.height(30.dp))
+            var passwordUnCorrectBoolean by remember {
+                mutableStateOf(false)
+            }
+            fun passwordCheck(){
+                if(enteredPassword.length<8){
+                    passwordUnCorrectBoolean=true
+                }
+                else{
+                    passwordUnCorrectBoolean=false
+                }
+            }
+            if(passwordUnCorrectBoolean){
+                Text(text = "password must contain 8 character", textAlign = TextAlign.Center, modifier = Modifier
+                    .fillMaxWidth(), color = errorText,fontSize = 18.sp)
+            }
             TextField(
                 value = enteredPassword, onValueChange = { new -> enteredPassword = new },
                 label = { Text(text = "Password") },
@@ -307,6 +342,7 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
                     unfocusedContainerColor = textFieldUnfocused,
                     focusedLabelColor = Color.Black
                 ),
+                isError = passwordUnCorrectBoolean,
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
@@ -318,13 +354,34 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
             )
             Spacer(modifier = Modifier.height(20.dp))
             //submit button
+
+            val userExistanceQueryResult by  viewmodel.userExsitanceFromView(enteredUsername).collectAsState(
+                    initial = emptyList()
+                )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 BackBTN(navController = navController)
+                val x = LocalContext.current.applicationContext//pak she
                 Button(
-                    onClick = { viewmodel.userManage(Account(0,enteredUsername,enteredPassword))}, modifier = Modifier
+                    onClick = {
+                        if (userExistanceQueryResult.isEmpty()){
+                            usernameExsitanceBoolean=false
+                            passwordCheck()
+                            if(!passwordUnCorrectBoolean){
+                                viewmodel.createAcc(Account(0,enteredUsername,enteredPassword))
+                            }
+                        }
+                        else{
+                            passwordCheck()
+
+                            usernameExsitanceBoolean=true
+                        }
+
+
+                              }, modifier = Modifier
                         .width(130.dp)
                         .height(60.dp), shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BTNs),
