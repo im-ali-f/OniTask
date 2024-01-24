@@ -65,6 +65,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -82,6 +83,7 @@ import com.example.onitask.repository.viewmodel
 import com.example.onitask.ui.theme.BTNs
 import com.example.onitask.ui.theme.errorBGC
 import com.example.onitask.ui.theme.errorText
+import com.example.onitask.ui.theme.logoutBGC
 import com.example.onitask.ui.theme.mainBGC
 import com.example.onitask.ui.theme.secondary
 import com.example.onitask.ui.theme.secondaryBGC
@@ -448,26 +450,60 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
 }
 
 @Composable
-fun NavBar(controller: NavController){
-    Row (modifier = Modifier.fillMaxWidth().background(color = secondary), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
-        Box(modifier = Modifier.fillMaxWidth(0.25f).background(Color.Black)){Text(text = globalUsername, fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)}
-        Text(modifier = Modifier.background(color = Color.Red), text = buildAnnotatedString {
-            withStyle(style = SpanStyle(fontSize = 30.sp, color = BTNs,fontWeight = FontWeight.Bold)){append("T")}
-            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)){append("o")}
-            withStyle(style = SpanStyle(fontSize = 30.sp, color = BTNs,fontWeight = FontWeight.Bold)){append("D")}
-            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)){append("o")}
-            withStyle(style = SpanStyle(fontSize = 30.sp, color = BTNs,fontWeight = FontWeight.Bold)){append("L")}
-            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)){append("ist")}
-        })
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "Logout")
+fun NavBar(navController: NavController){
+    Row (modifier = Modifier
+        .fillMaxWidth()
+        .background(color = secondary), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier
+            .padding(start = 5.dp)
+            .fillMaxWidth(0.3f)) {
+            Text(
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                text = globalUsername,
+                fontSize = 20.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
         }
+        Text(text = buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    fontSize = 30.sp,
+                    color = BTNs,
+                    fontWeight = FontWeight.Bold
+                )
+            ) { append("T") }
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)) { append("o") }
+            withStyle(
+                style = SpanStyle(
+                    fontSize = 30.sp,
+                    color = BTNs,
+                    fontWeight = FontWeight.Bold
+                )
+            ) { append("D") }
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)) { append("o") }
+            withStyle(
+                style = SpanStyle(
+                    fontSize = 30.sp,
+                    color = BTNs,
+                    fontWeight = FontWeight.Bold
+                )
+            ) { append("L") }
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)) { append("ist") }
+        })
+        Box(modifier =Modifier.padding(end = 5.dp) ){
+            Button(onClick = { globalUsername=""
+                             globalId=0
+                             navController.navigate("loginSignupPage")}, colors = ButtonDefaults.buttonColors(logoutBGC), shape = RoundedCornerShape(10.dp)) {
+            Text(text = "Logout")
+        }}
     }
 }
 @Composable
 fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
     Column(modifier = Modifier.fillMaxSize()) {
-        NavBar(controller = navController)
+        NavBar(navController)
 
     }
 }
