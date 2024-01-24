@@ -19,4 +19,7 @@ class viewmodel(val repo: repo):ViewModel() {
         return repo.userExistance(userName)
     }
 
+    fun getUser(userName: String,password:String):Flow<List<Account>>{
+        return  repo.getUser(userName,password)
+    }
 }

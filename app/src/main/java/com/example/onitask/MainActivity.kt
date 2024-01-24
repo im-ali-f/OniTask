@@ -113,9 +113,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
+//user important informations
+var globalId=0
+var globalUsername=""
+
+
 //backBTN
 @Composable
-
 fun BackBTN(navController: NavController) {
     Box() {
     FloatingActionButton(
@@ -185,6 +191,7 @@ fun LoginSignupComp(navController: NavController){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginComp(navController: NavController, viewmodel: viewmodel){
+
     var enteredUsername by remember {
         mutableStateOf("")
     }
@@ -192,6 +199,10 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel){
         mutableStateOf("")
     }
 
+    val userQueryResult by viewmodel.getUser(enteredUsername,enteredPassword).collectAsState(initial = emptyList())
+    var userCantFoundBoolean by remember {
+        mutableStateOf(false)
+    }
     Column(modifier = Modifier
         .fillMaxSize()
         .fillMaxWidth(0.8f)
@@ -201,7 +212,9 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel){
         horizontalAlignment = Alignment.CenterHorizontally) {
 
         Text(text = "Login Page", fontSize = 30.sp, color = secondary)
-
+        if(userCantFoundBoolean){
+            Text(text = "Username Or Password is wrong", modifier = Modifier.fillMaxWidth(), textAlign =TextAlign.Center, color = errorText, fontSize = 20.sp)
+        }
         TextField(
             value = enteredUsername, onValueChange = { new -> enteredUsername = new },
             label = { Text(text = "Username") },
@@ -210,6 +223,7 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel){
             shape = RoundedCornerShape(10.dp),
             maxLines = 1,
             singleLine=true,
+            isError = userCantFoundBoolean,
             textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
             colors = TextFieldDefaults.colors(focusedContainerColor = textFieldfocused, unfocusedContainerColor = textFieldUnfocused, focusedLabelColor = Color.Black),
             leadingIcon = {
@@ -222,6 +236,9 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel){
             )
 
         Spacer(modifier = Modifier.height(30.dp))
+        if(userCantFoundBoolean){
+            Text(text = "Username Or Password is wrong", modifier = Modifier.fillMaxWidth(), textAlign =TextAlign.Center, color = errorText, fontSize = 20.sp)
+        }
         TextField(
             value = enteredPassword, onValueChange = { new -> enteredPassword = new },
             label = { Text(text = "Password") },
@@ -231,6 +248,7 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel){
             maxLines = 1,
             singleLine=true,
             textStyle = TextStyle(color = Color.White, fontSize = 20.sp),
+            isError = userCantFoundBoolean,
             colors = TextFieldDefaults.colors(focusedContainerColor = textFieldfocused, unfocusedContainerColor = textFieldUnfocused, focusedLabelColor = Color.Black),
             leadingIcon = {
                 Icon(
@@ -243,9 +261,22 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel){
         )
         Spacer(modifier = Modifier.height(20.dp))
         //submit button
+        val x = LocalContext.current.applicationContext
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             BackBTN(navController = navController )
-            Button(onClick = { /*TODO*/ }, modifier = Modifier
+            Button(onClick = {
+
+                if(userQueryResult.isEmpty()){
+                    userCantFoundBoolean=true
+                }
+                else{
+                    userCantFoundBoolean=false
+                    globalId=userQueryResult[0].id
+                    globalUsername=userQueryResult[0].username
+                    //hala navigate be list todo
+                    Toast.makeText(x,"$globalId , $globalUsername",Toast.LENGTH_LONG).show()
+                }
+                             }, modifier = Modifier
                 .width(120.dp)
                 .height(60.dp), shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BTNs),
@@ -364,7 +395,6 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 BackBTN(navController = navController)
-                val x = LocalContext.current.applicationContext//pak she
                 Button(
                     onClick = {
                         if (userExistanceQueryResult.isEmpty()){
@@ -372,6 +402,7 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
                             passwordCheck()
                             if(!passwordUnCorrectBoolean){
                                 viewmodel.createAcc(Account(0,enteredUsername,enteredPassword))
+                                navController.navigate("loginPage")
                             }
                         }
                         else{

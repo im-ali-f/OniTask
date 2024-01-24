@@ -15,5 +15,5 @@ interface accountDAO{
     fun userExistance(userName: String):Flow<List<Account>>
 
     @Query("select * FROM account WHERE username =:userName AND password =:userPass")
-    fun getUser(userName:String,userPass:String): Flow<Account>
+    fun getUser(userName:String,userPass:String): Flow<List<Account>>
 }
