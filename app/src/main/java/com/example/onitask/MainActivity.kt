@@ -56,9 +56,11 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -99,7 +101,7 @@ class MainActivity : ComponentActivity() {
             val db= db.getInstance(context)
             val repo= repo(db)
             val view= viewmodel(repo)
-            NavHost(navController = navStat, startDestination = "loginSignupPage" ){
+            NavHost(navController = navStat, startDestination = "createPage" ){
                 composable(route="loginSignupPage"){
                     LoginSignupComp(navController=navStat)
                 }
@@ -109,6 +111,12 @@ class MainActivity : ComponentActivity() {
                 composable(route="signupPage"){
                     SignupComp(navController=navStat,view)
                 }
+                composable(route="toDoListPage"){
+                    ToDoListComp(navStat,view)
+                }
+                composable(route="createPage"){
+                    CreateToDoComp(navStat,view)
+                }
             }
         }
     }
@@ -116,8 +124,12 @@ class MainActivity : ComponentActivity() {
 
 
 //user important informations
+/*
 var globalId=0
 var globalUsername=""
+*/
+var globalId=31
+var globalUsername="ali"
 
 
 //backBTN
@@ -274,7 +286,8 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel){
                     globalId=userQueryResult[0].id
                     globalUsername=userQueryResult[0].username
                     //hala navigate be list todo
-                    Toast.makeText(x,"$globalId , $globalUsername",Toast.LENGTH_LONG).show()
+                    navController.navigate("toDoListPage")
+                    //Toast.makeText(x,"$globalId , $globalUsername",Toast.LENGTH_LONG).show()
                 }
                              }, modifier = Modifier
                 .width(120.dp)
@@ -423,5 +436,38 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
             }
 
         }
+    }
+}
+
+//toDoList
+@Composable
+fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(text = " list will be shown here !")
+    }
+}
+
+@Composable
+fun NavBar(controller: NavController){
+    Row (modifier = Modifier.fillMaxWidth().background(color = secondary), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
+        Box(modifier = Modifier.fillMaxWidth(0.25f).background(Color.Black)){Text(text = globalUsername, fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)}
+        Text(modifier = Modifier.background(color = Color.Red), text = buildAnnotatedString {
+            withStyle(style = SpanStyle(fontSize = 30.sp, color = BTNs,fontWeight = FontWeight.Bold)){append("T")}
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)){append("o")}
+            withStyle(style = SpanStyle(fontSize = 30.sp, color = BTNs,fontWeight = FontWeight.Bold)){append("D")}
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)){append("o")}
+            withStyle(style = SpanStyle(fontSize = 30.sp, color = BTNs,fontWeight = FontWeight.Bold)){append("L")}
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)){append("ist")}
+        })
+        Button(onClick = { /*TODO*/ }) {
+            Text(text = "Logout")
+        }
+    }
+}
+@Composable
+fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
+    Column(modifier = Modifier.fillMaxSize()) {
+        NavBar(controller = navController)
+
     }
 }
