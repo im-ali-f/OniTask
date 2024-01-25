@@ -3,6 +3,7 @@ package com.example.onitask.data.room.models
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.w3c.dom.Text
 
 @Entity(tableName = "account")
 data class Account(

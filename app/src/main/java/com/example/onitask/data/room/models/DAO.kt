@@ -17,3 +17,9 @@ interface accountDAO{
     @Query("select * FROM account WHERE username =:userName AND password =:userPass")
     fun getUser(userName:String,userPass:String): Flow<List<Account>>
 }
+
+@Dao
+interface taskDAO{
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun createTask(task: Task)
+}

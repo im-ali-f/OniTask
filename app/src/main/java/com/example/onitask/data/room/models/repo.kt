@@ -8,4 +8,7 @@ class repo(val db: db) {
 
     fun getUser(userName: String,password:String)=db.accDAO().getUser(userName,password)
 
+    suspend fun createTask(task: Task){
+        db.taskDAO().createTask(task)
+    }
 }

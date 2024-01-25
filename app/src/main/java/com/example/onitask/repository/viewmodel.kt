@@ -5,6 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.onitask.data.room.models.Account
+import com.example.onitask.data.room.models.Task
 import com.example.onitask.data.room.models.repo
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
@@ -21,5 +22,11 @@ class viewmodel(val repo: repo):ViewModel() {
 
     fun getUser(userName: String,password:String):Flow<List<Account>>{
         return  repo.getUser(userName,password)
+    }
+
+    fun createTask(data:Task){
+        viewModelScope.launch {
+            repo.createTask(data)
+        }
     }
 }

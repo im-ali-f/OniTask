@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 @Database(entities = [Account::class , Task::class] , version = 1, exportSchema = false )
 abstract class db:RoomDatabase(){
     abstract fun accDAO():accountDAO
+    abstract fun taskDAO():taskDAO
     companion object{
         @Volatile
         private var INSTANCE :db?=null

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.R
 import androidx.activity.compose.setContent
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -65,6 +67,7 @@ import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -96,6 +99,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.onitask.data.room.models.Account
+import com.example.onitask.data.room.models.Task
 import com.example.onitask.data.room.models.db
 import com.example.onitask.data.room.models.repo
 import com.example.onitask.repository.viewmodel
@@ -555,6 +559,7 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
             .background(secondaryBGC),
             verticalArrangement = Arrangement.SpaceBetween) {
             Column {
+
                 NavBar(navController)
                 Column(modifier = Modifier
                     .fillMaxWidth()
@@ -569,9 +574,10 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                             focusedLabelColor = Color.Black),
                         textStyle = TextStyle(fontSize = 20.sp, color = Color.Black), onValueChange ={ new:String -> enteredTitle=new} )
                     Spacer(modifier = Modifier.height(20.dp))
-                    TextField(value =enteredText , maxLines = 12, label = { Text(text = "Text", color = secondary, fontWeight = FontWeight.Bold)}, shape = RoundedCornerShape(10.dp), modifier = Modifier
+                    TextField(value =enteredText ,singleLine=true, maxLines = 1, label = { Text(text = "Text", color = secondary, fontWeight = FontWeight.Bold)}, shape = RoundedCornerShape(10.dp), modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
+
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = textFieldfocused2,
                             unfocusedContainerColor = textFieldUnfocused,
@@ -676,13 +682,23 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
 
                                  //add new task to db
 
-                                 if(canAddToDB){
-                                     canAddToDB=false
-
+                                 if(canAddToDB && enteredDateStr != "select Date") {
+                                     canAddToDB = false
+                                     viewmodel.createTask(
+                                         Task(
+                                             id = 0,
+                                             title = enteredTitle,
+                                             text = enteredText,
+                                             date = enteredDateStr,
+                                             time = enteredTimeStr,
+                                             completed = false,
+                                             userIdFk = globalId
+                                         )
+                                     )
+                                     //navigate to toDoList
+                                     navController.navigate("toDoListPage")
                                  }
 
-                                //navigate to toDoList
-                                 navController.navigate("toDoListPage")
 
                 }
                     , modifier = Modifier
