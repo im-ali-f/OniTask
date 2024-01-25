@@ -64,6 +64,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
@@ -597,11 +598,19 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
 
 
                 //show selected Date
-                Text(text = "Date:"+selectedDateStr+)
-                //call date picker again 
-                Button(onClick = { openDialog.value=true }) {
-                    Text(text = "call me")
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Date: $selectedDateStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                    //call date picker again
+                    Button(onClick = { openDialog.value=true }
+                        , modifier = Modifier
+                        .width(130.dp)
+                        .height(60.dp), shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = BTNs),
+                        elevation = ButtonDefaults.buttonElevation(10.dp)) {
+                        Text(text = "Date !", fontSize = 20.sp)
+                    }
                 }
+
                 
             }
         }
