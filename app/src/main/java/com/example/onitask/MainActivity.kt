@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -39,9 +44,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -456,7 +463,7 @@ fun NavBar(navController: NavController){
         .background(color = secondary), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier
             .padding(start = 5.dp)
-            .fillMaxWidth(0.3f)) {
+            .fillMaxWidth(0.25f)) {
             Text(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -474,7 +481,8 @@ fun NavBar(navController: NavController){
                     fontWeight = FontWeight.Bold
                 )
             ) { append("T") }
-            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)) { append("o") }
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White,
+                fontWeight = FontWeight.Bold)) { append("o") }
             withStyle(
                 style = SpanStyle(
                     fontSize = 30.sp,
@@ -482,7 +490,8 @@ fun NavBar(navController: NavController){
                     fontWeight = FontWeight.Bold
                 )
             ) { append("D") }
-            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)) { append("o") }
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White,
+                fontWeight = FontWeight.Bold)) { append("o") }
             withStyle(
                 style = SpanStyle(
                     fontSize = 30.sp,
@@ -490,7 +499,8 @@ fun NavBar(navController: NavController){
                     fontWeight = FontWeight.Bold
                 )
             ) { append("L") }
-            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White)) { append("ist") }
+            withStyle(style = SpanStyle(fontSize = 25.sp, color = Color.White,
+                fontWeight = FontWeight.Bold)) { append("ist") }
         })
         Box(modifier =Modifier.padding(end = 5.dp) ){
             Button(onClick = { globalUsername=""
@@ -500,10 +510,83 @@ fun NavBar(navController: NavController){
         }}
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
-    Column(modifier = Modifier.fillMaxSize()) {
-        NavBar(navController)
-
+    var enteredTitle by remember {
+        mutableStateOf("")
     }
+    var enteredText by remember {
+        mutableStateOf("")
+    }
+    var enteredDate by remember {
+        mutableStateOf("")
+    }
+    var enteredTime by remember {
+        mutableStateOf("")
+    }
+    
+    val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+    
+    if(globalUsername !=""){
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(secondaryBGC)) {
+            NavBar(navController)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TextField(value =enteredTitle , onValueChange ={ new:String -> enteredTitle=new} )
+                TextField(value =enteredText , onValueChange ={ new:String -> enteredText=new} )
+                //date picker medium.com estefade kardam
+                val openDialog = remember { mutableStateOf(true) }
+                if (openDialog.value) {
+                    DatePickerDialog(
+                        colors = DatePickerDefaults.colors(
+                            containerColor = secondaryBGC,
+                            titleContentColor = secondary,
+                            headlineContentColor = secondary,
+                            weekdayContentColor = textFieldUnfocused
+                        ),
+                        onDismissRequest = { openDialog.value = false },
+                        confirmButton = { TextButton(
+                            onClick = {
+                                    openDialog.value = false
+                                }
+                            ) {
+                                Text("OK")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    openDialog.value = false
+                                }
+                            ) {
+                                Text("CANCEL")
+                            }
+                        }
+                    ) {
+                        DatePicker(
+                            state = dateState,
+                            title = {Text(text = "select ToDo Date", fontSize = 15.sp, modifier = Modifier.padding(25.dp), color = secondary)},
+                            headline ={Text(text = "Entered date:", fontSize = 35.sp, modifier = Modifier.padding(start = 20.dp, bottom = 20.dp), color = secondary)},
+                            showModeToggle = false
+
+                            )
+                    }
+                }
+                
+                //show selected Date
+                Text(text = "    "+dateState+"<----")
+                //call date picker again 
+                Button(onClick = { openDialog.value=true }) {
+                    Text(text = "call me")
+                }
+                
+            }
+        }
+    }
+    else{
+        navController.navigate("loginSignupPage")
+    }
+
 }
