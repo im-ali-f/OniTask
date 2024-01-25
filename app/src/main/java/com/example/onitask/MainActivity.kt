@@ -100,6 +100,7 @@ import com.example.onitask.ui.theme.secondary
 import com.example.onitask.ui.theme.secondaryBGC
 import com.example.onitask.ui.theme.textFieldUnfocused
 import com.example.onitask.ui.theme.textFieldfocused
+import com.example.onitask.ui.theme.textFieldfocused2
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import java.time.Instant
@@ -529,10 +530,10 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
     var enteredText by remember {
         mutableStateOf("")
     }
-    var enteredDate by remember {
+    var selectedDateStr by remember {
         mutableStateOf("")
     }
-    var enteredTime by remember {
+    var enteredTimeStr by remember {
         mutableStateOf("")
     }
     
@@ -543,14 +544,29 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
             .fillMaxSize()
             .background(secondaryBGC)) {
             NavBar(navController)
-            Column(modifier = Modifier.fillMaxWidth()) {
-                TextField(value =enteredTitle , onValueChange ={ new:String -> enteredTitle=new} )
-                TextField(value =enteredText , onValueChange ={ new:String -> enteredText=new} )
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceEvenly) {
+
+                TextField(value =enteredTitle ,singleLine=true, maxLines = 1, label = { Text(text = "Title", color = secondary, fontWeight = FontWeight.Bold)}, shape = RoundedCornerShape(10.dp), modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = textFieldfocused2,
+                        unfocusedContainerColor = textFieldUnfocused,
+                        focusedLabelColor = Color.Black),
+                    textStyle = TextStyle(fontSize = 20.sp, color = Color.Black), onValueChange ={ new:String -> enteredTitle=new} )
+                Spacer(modifier = Modifier.height(20.dp))
+                TextField(value =enteredText , maxLines = 12, label = { Text(text = "Text", color = secondary, fontWeight = FontWeight.Bold)}, shape = RoundedCornerShape(10.dp), modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = textFieldfocused2,
+                        unfocusedContainerColor = textFieldUnfocused,
+                        focusedLabelColor = Color.Black),
+                    textStyle = TextStyle(fontSize = 20.sp, color = Color.Black), onValueChange ={ new:String -> enteredText=new} )
+                Spacer(modifier = Modifier.height(20.dp))
+
                 //date picker medium.com estefade kardam
                 val openDialog = remember { mutableStateOf(true) }
-                var selectedDateStr by remember {
-                    mutableStateOf("")
-                }
 
                 if (openDialog.value) {
                     DatePickerDialog(
@@ -603,8 +619,8 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                     //call date picker again
                     Button(onClick = { openDialog.value=true }
                         , modifier = Modifier
-                        .width(130.dp)
-                        .height(60.dp), shape = RoundedCornerShape(10.dp),
+                            .width(130.dp)
+                            .height(60.dp), shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = BTNs),
                         elevation = ButtonDefaults.buttonElevation(10.dp)) {
                         Text(text = "Date !", fontSize = 20.sp)
