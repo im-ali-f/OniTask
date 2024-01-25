@@ -1,5 +1,6 @@
 package com.example.onitask
 
+import android.app.TimePickerDialog
 import android.health.connect.datatypes.units.Length
 import android.os.Build
 import android.os.Bundle
@@ -24,12 +25,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -50,7 +54,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.currentComposer
@@ -524,28 +532,31 @@ fun NavBar(navController: NavController){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
+
+
     var enteredTitle by remember {
         mutableStateOf("")
     }
     var enteredText by remember {
         mutableStateOf("")
     }
-    var selectedDateStr by remember {
+    var enteredDateStr by remember {
         mutableStateOf("")
     }
     var enteredTimeStr by remember {
         mutableStateOf("")
     }
     
-    val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
-    
+
+    var scrollStateCol = rememberScrollState()
     if(globalUsername !=""){
         Column(modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollStateCol)
             .background(secondaryBGC)) {
             NavBar(navController)
-            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceEvenly) {
-
+            Column(modifier = Modifier.fillMaxWidth(),  horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = "Create New ToDo", fontWeight = FontWeight.Bold, fontSize = 30.sp, color = BTNs)
                 TextField(value =enteredTitle ,singleLine=true, maxLines = 1, label = { Text(text = "Title", color = secondary, fontWeight = FontWeight.Bold)}, shape = RoundedCornerShape(10.dp), modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp),
@@ -567,6 +578,7 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
 
                 //date picker medium.com estefade kardam
                 val openDialog = remember { mutableStateOf(true) }
+                val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
 
                 if (openDialog.value) {
                     DatePickerDialog(
@@ -605,17 +617,17 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                     var selectedDate=dateState.selectedDateMillis?.let { Instant.ofEpochMilli(it) }
                     val selectedDateFormater=DateTimeFormatter.ofPattern("dd-MM-yyyy")
                     if (selectedDate != null) {
-                        selectedDateStr=selectedDateFormater.format(selectedDate.atZone(ZoneId.systemDefault()))
+                        enteredDateStr=selectedDateFormater.format(selectedDate.atZone(ZoneId.systemDefault()))
                     }
                     else{
-                        selectedDateStr="select Date"
+                        enteredDateStr="select Date"
                     }
                 }
 
 
                 //show selected Date
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Date: $selectedDateStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "Date: $enteredDateStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
                     //call date picker again
                     Button(onClick = { openDialog.value=true }
                         , modifier = Modifier
@@ -623,13 +635,36 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                             .height(60.dp), shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = BTNs),
                         elevation = ButtonDefaults.buttonElevation(10.dp)) {
-                        Text(text = "Date !", fontSize = 20.sp)
+                        Text(text = "Select !", fontSize = 20.sp)
                     }
                 }
+                Spacer(modifier = Modifier.height(30.dp))
+                // time Picker
 
-                
+
+                val timeState = rememberTimePickerState()
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
+                    TimeInput(
+                        state = timeState,
+                        colors = TimePickerDefaults.colors(
+                            timeSelectorSelectedContainerColor = Color.White,
+                            timeSelectorUnselectedContainerColor=Color.White,
+                            periodSelectorSelectedContainerColor= BTNs
+                        )
+                    )
+                }
+                enteredTimeStr="${timeState.hour}:${timeState.minute}"
+
+                Text(text = "Time: $enteredTimeStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+
+
+
             }
-        }
+            //inja btn done baraye nav va db
+
+
+            }
+
     }
     else{
         navController.navigate("loginSignupPage")
