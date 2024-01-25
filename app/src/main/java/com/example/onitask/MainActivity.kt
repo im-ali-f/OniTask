@@ -1,11 +1,13 @@
 package com.example.onitask
 
 import android.health.connect.datatypes.units.Length
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.R
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,6 +53,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,9 +101,14 @@ import com.example.onitask.ui.theme.textFieldUnfocused
 import com.example.onitask.ui.theme.textFieldfocused
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -510,6 +518,7 @@ fun NavBar(navController: NavController){
         }}
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
@@ -538,6 +547,10 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                 TextField(value =enteredText , onValueChange ={ new:String -> enteredText=new} )
                 //date picker medium.com estefade kardam
                 val openDialog = remember { mutableStateOf(true) }
+                var selectedDateStr by remember {
+                    mutableStateOf("")
+                }
+
                 if (openDialog.value) {
                     DatePickerDialog(
                         colors = DatePickerDefaults.colors(
@@ -569,14 +582,22 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                             state = dateState,
                             title = {Text(text = "select ToDo Date", fontSize = 15.sp, modifier = Modifier.padding(25.dp), color = secondary)},
                             headline ={Text(text = "Entered date:", fontSize = 35.sp, modifier = Modifier.padding(start = 20.dp, bottom = 20.dp), color = secondary)},
-                            showModeToggle = false
-
+                            showModeToggle = false,
                             )
                     }
+                    var selectedDate=dateState.selectedDateMillis?.let { Instant.ofEpochMilli(it) }
+                    val selectedDateFormater=DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                    if (selectedDate != null) {
+                        selectedDateStr=selectedDateFormater.format(selectedDate.atZone(ZoneId.systemDefault()))
+                    }
+                    else{
+                        selectedDateStr="select Date"
+                    }
                 }
-                
+
+
                 //show selected Date
-                Text(text = "    "+dateState+"<----")
+                Text(text = "Date:"+selectedDateStr+)
                 //call date picker again 
                 Button(onClick = { openDialog.value=true }) {
                     Text(text = "call me")
