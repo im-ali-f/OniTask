@@ -22,4 +22,7 @@ interface accountDAO{
 interface taskDAO{
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun createTask(task: Task)
+
+    @Query("select * FROM task WHERE userIdFk=:userId")
+    fun getAllTasks(userId:Int):Flow<List<Task>>
 }

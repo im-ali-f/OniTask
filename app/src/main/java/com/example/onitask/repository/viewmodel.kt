@@ -29,4 +29,8 @@ class viewmodel(val repo: repo):ViewModel() {
             repo.createTask(data)
         }
     }
+
+    fun getAllTasks(id:Int):Flow<List<Task>>{
+       return repo.getAllTasks(id)
+    }
 }

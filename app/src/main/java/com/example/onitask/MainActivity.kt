@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -136,7 +138,7 @@ class MainActivity : ComponentActivity() {
             val db= db.getInstance(context)
             val repo= repo(db)
             val view= viewmodel(repo)
-            NavHost(navController = navStat, startDestination = "createPage" ){
+            NavHost(navController = navStat, startDestination = "toDoListPage" ){
                 composable(route="loginSignupPage"){
                     LoginSignupComp(navController=navStat)
                 }
@@ -535,7 +537,33 @@ fun NavBar(navController: NavController){
 @Composable
 fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(text = " list will be shown here !")
+        NavBar(navController = navController)
+
+        val allTaskQueryResult by viewmodel.getAllTasks(globalId).collectAsState(initial = emptyList())
+        LazyColumn(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+
+            items(allTaskQueryResult){
+                Spacer(modifier = Modifier.height(5.dp))
+                Row (modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .border(2.dp, BTNs, RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
+                    .height(115.dp)
+                    .padding(top = 5.dp, start = 10.dp, bottom = 5.dp, end = 10.dp)
+
+                    ){
+                        Column(modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(0.25f)
+                            .background(Color.Red),
+                            verticalArrangement =  Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "${it.title}", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(text = "${it.date}  ${it.time}")
+                        }
+                }
+            }
+
+        }
     }
 }
 
