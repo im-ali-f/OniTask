@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,6 +44,7 @@ import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -115,10 +117,12 @@ import com.example.onitask.ui.theme.textFieldfocused
 import com.example.onitask.ui.theme.textFieldfocused2
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 class MainActivity : ComponentActivity() {
@@ -470,14 +474,8 @@ fun SignupComp(navController: NavController ,viewmodel: viewmodel){
     }
 }
 
-//toDoList
-@Composable
-fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(text = " list will be shown here !")
-    }
-}
 
+//navbar
 @Composable
 fun NavBar(navController: NavController){
     Row (modifier = Modifier
@@ -526,12 +524,21 @@ fun NavBar(navController: NavController){
         })
         Box(modifier =Modifier.padding(end = 5.dp) ){
             Button(onClick = { globalUsername=""
-                             globalId=0
-                             navController.navigate("loginSignupPage")}, colors = ButtonDefaults.buttonColors(logoutBGC), shape = RoundedCornerShape(10.dp)) {
-            Text(text = "Logout")
-        }}
+                globalId=0
+                navController.navigate("loginSignupPage")}, colors = ButtonDefaults.buttonColors(logoutBGC), shape = RoundedCornerShape(10.dp)) {
+                Text(text = "Logout")
+            }}
     }
 }
+
+//toDoList
+@Composable
+fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(text = " list will be shown here !")
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -587,7 +594,7 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
 
                     //date picker medium.com estefade kardam
                     val openDialog = remember { mutableStateOf(true) }
-                    val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+                    val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Picker)
 
                     if (openDialog.value) {
                         DatePickerDialog(
@@ -621,6 +628,7 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                                 title = {Text(text = "select ToDo Date", fontSize = 15.sp, modifier = Modifier.padding(25.dp), color = secondary)},
                                 headline ={Text(text = "Entered date:", fontSize = 35.sp, modifier = Modifier.padding(start = 20.dp, bottom = 20.dp), color = secondary)},
                                 showModeToggle = false,
+                                modifier = Modifier.fillMaxHeight(0.9f)
                             )
                         }
                         var selectedDate=dateState.selectedDateMillis?.let { Instant.ofEpochMilli(it) }
@@ -664,7 +672,7 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                     }
                     enteredTimeStr="${timeState.hour}:${timeState.minute}"
 
-                    Text(text = "Time: $enteredTimeStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                    //Text(text = "Time: $enteredTimeStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
 
 
 
@@ -672,17 +680,19 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
             }
 
             //inja btn done baraye nav va db
-            Box(modifier = Modifier
+            Row(modifier = Modifier
                 .fillMaxWidth()
                 .background(BTNs)
                 .height(80.dp),
-                contentAlignment = Alignment.Center
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ){
+                BackBTN(navController = navController)
                 Button(onClick = {
 
                                  //add new task to db
 
-                                 if(canAddToDB && enteredDateStr != "select Date") {
+                                 if(canAddToDB && enteredDateStr != "select Date" && enteredTitle !="") {
                                      canAddToDB = false
                                      viewmodel.createTask(
                                          Task(
@@ -718,3 +728,4 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
     }
 
 }
+
