@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -76,6 +77,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
@@ -114,6 +116,8 @@ import com.example.onitask.ui.theme.logoutBGC
 import com.example.onitask.ui.theme.mainBGC
 import com.example.onitask.ui.theme.secondary
 import com.example.onitask.ui.theme.secondaryBGC
+import com.example.onitask.ui.theme.taskBodyActive
+import com.example.onitask.ui.theme.taskBodyInactive
 import com.example.onitask.ui.theme.textFieldUnfocused
 import com.example.onitask.ui.theme.textFieldfocused
 import com.example.onitask.ui.theme.textFieldfocused2
@@ -543,23 +547,51 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
         LazyColumn(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
 
             items(allTaskQueryResult){
-                Spacer(modifier = Modifier.height(5.dp))
+                var taskBGCColor by remember {
+                    mutableStateOf(taskBodyActive)
+                }
+                taskBGCColor=if(it.completed) taskBodyInactive else taskBodyActive
+
+                var taskShadow by remember {
+                    mutableStateOf(30.dp)
+                }
+                Spacer(modifier = Modifier.height(10.dp).fillMaxWidth())
                 Row (modifier = Modifier
                     .fillMaxWidth(0.9f)
-                    .border(2.dp, BTNs, RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
-                    .height(115.dp)
-                    .padding(top = 5.dp, start = 10.dp, bottom = 5.dp, end = 10.dp)
+                    .shadow(elevation = taskShadow)
+                    .clip(shape = RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
+                    .background(taskBGCColor)
+                    .clickable {
 
+                    }
+                    .border(2.dp, BTNs, RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
+                    .height(150.dp)
+                    .padding(top = 5.dp, start = 10.dp, bottom = 5.dp, end = 10.dp)
                     ){
+
                         Column(modifier = Modifier
                             .fillMaxHeight()
-                            .fillMaxWidth(0.25f)
-                            .background(Color.Red),
+                            .fillMaxWidth(0.25f),
                             verticalArrangement =  Arrangement.SpaceEvenly,
                             horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(text = "${it.title}", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(text = "${it.date}  ${it.time}")
+                            Text(text = "${it.title}", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 25.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceEvenly) {
+                                Text(text = "${it.date}", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),fontSize = 15.sp, fontWeight = FontWeight.Bold, color = secondary)
+                                Text(text = "${it.time}", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),fontSize = 15.sp, fontWeight = FontWeight.Bold, color = secondary)
+                            }
+
                         }
+                    Spacer(modifier = Modifier
+                        .width(10.dp)
+                        .fillMaxHeight())
+                    Spacer(modifier = Modifier
+                        .width(1.dp)
+                        .background(Color.Gray)
+                        .fillMaxHeight())
+                    Spacer(modifier = Modifier
+                        .width(10.dp)
+                        .fillMaxHeight())
+
                 }
             }
 

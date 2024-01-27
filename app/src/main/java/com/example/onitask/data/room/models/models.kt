@@ -23,7 +23,7 @@ data class Task(
     val text:String,
     val date:String,
     val time:String,
-    val completed:Boolean=false,
+    var completed:Boolean=false,
     val userIdFk:Int
 
 
