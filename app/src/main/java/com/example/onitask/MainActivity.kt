@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +38,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
@@ -52,6 +56,7 @@ import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Shapes
@@ -64,6 +69,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -110,6 +116,9 @@ import com.example.onitask.data.room.models.db
 import com.example.onitask.data.room.models.repo
 import com.example.onitask.repository.viewmodel
 import com.example.onitask.ui.theme.BTNs
+import com.example.onitask.ui.theme.completeBTN
+import com.example.onitask.ui.theme.deleteBTN
+import com.example.onitask.ui.theme.editBTN
 import com.example.onitask.ui.theme.errorBGC
 import com.example.onitask.ui.theme.errorText
 import com.example.onitask.ui.theme.logoutBGC
@@ -168,9 +177,11 @@ class MainActivity : ComponentActivity() {
 /*
 var globalId=0
 var globalUsername=""
+var globalTaskId=0
 */
 var globalId=31
 var globalUsername="ali"
+var globalTaskId=1
 
 
 //backBTN
@@ -618,6 +629,47 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
                     Spacer(modifier = Modifier
                         .width(10.dp)
                         .fillMaxHeight())
+
+
+                    Column(modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+
+                        IconButton(onClick = { /*TODO*/ } ,
+                            modifier = Modifier.size(50.dp),
+                        ){
+                            Icon(modifier = Modifier.fillMaxSize(),
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = completeBTN,
+                            )
+                        }
+
+                        IconButton(onClick = { /*TODO*/ } ,
+                            modifier = Modifier.size(50.dp),
+                        ){
+                            Icon(modifier = Modifier.fillMaxSize(),
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = editBTN
+                            )
+                        }
+
+                        IconButton(onClick = { /*TODO*/ } ,
+                            modifier = Modifier.size(50.dp),
+
+                        ){
+                            Icon(modifier = Modifier.fillMaxSize(),
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = null,
+                                tint = deleteBTN
+                            )
+                        }
+
+                    }
+
 
                 }
             }
