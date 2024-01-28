@@ -12,4 +12,12 @@ class repo(val db: db) {
         db.taskDAO().createTask(task)
     }
     fun getAllTasks(userId:Int)=db.taskDAO().getAllTasks(userId)
+
+    suspend fun completeStatus(task: Task){
+        db.taskDAO().completeStatus(task)
+    }
+
+    suspend fun deleteTask(task: Task){
+        db.taskDAO().deleteTask(task)
+    }
 }

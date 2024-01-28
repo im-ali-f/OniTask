@@ -33,4 +33,16 @@ class viewmodel(val repo: repo):ViewModel() {
     fun getAllTasks(id:Int):Flow<List<Task>>{
        return repo.getAllTasks(id)
     }
+
+    fun completeStatus(data: Task){
+        viewModelScope.launch {
+            repo.completeStatus(data)
+        }
+    }
+
+    fun deleteTask(data: Task){
+        viewModelScope.launch {
+            repo.deleteTask(data)
+        }
+    }
 }

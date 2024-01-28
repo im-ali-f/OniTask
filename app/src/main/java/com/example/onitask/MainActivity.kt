@@ -37,6 +37,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
@@ -166,6 +167,12 @@ class MainActivity : ComponentActivity() {
                 }
                 composable(route="createPage"){
                     CreateToDoComp(navStat,view)
+                }
+                composable(route="editPage"){
+                    EditPageComp(navStat,view)
+                }
+                composable(route="showSpecificTaskPage"){
+                    ShowSpecificTaskComp(navStat,view)
                 }
             }
         }
@@ -551,11 +558,11 @@ fun NavBar(navController: NavController){
 //toDoList
 @Composable
 fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
         NavBar(navController = navController)
 
         val allTaskQueryResult by viewmodel.getAllTasks(globalId).collectAsState(initial = emptyList())
-        LazyColumn(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        LazyColumn(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f), horizontalAlignment = Alignment.CenterHorizontally) {
 
             items(allTaskQueryResult){
                 var taskBGCColor by remember {
@@ -575,7 +582,8 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
                     .clip(shape = RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
                     .background(taskBGCColor)
                     .clickable {
-
+                        globalTaskId = it.id
+                        navController.navigate("showSpecificTaskPage")
                     }
                     .border(2.dp, BTNs, RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
                     .height(150.dp)
@@ -637,7 +645,11 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally) {
 
-                        IconButton(onClick = { /*TODO*/ } ,
+                        IconButton(onClick = {
+                                             it.completed=if(it.completed)false else true
+                                             viewmodel.completeStatus(it)
+                                             taskBGCColor= Color.Red // in aslan mohem nist faghat baraye update colore
+                                             } ,
                             modifier = Modifier.size(50.dp),
                         ){
                             Icon(modifier = Modifier.fillMaxSize(),
@@ -647,7 +659,10 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
                             )
                         }
 
-                        IconButton(onClick = { /*TODO*/ } ,
+                        IconButton(onClick = {
+                                            globalTaskId=it.id
+                                            navController.navigate("editPage")
+                                             } ,
                             modifier = Modifier.size(50.dp),
                         ){
                             Icon(modifier = Modifier.fillMaxSize(),
@@ -657,7 +672,9 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
                             )
                         }
 
-                        IconButton(onClick = { /*TODO*/ } ,
+                        IconButton(onClick = {
+                                             viewmodel.deleteTask(it)
+                                             } ,
                             modifier = Modifier.size(50.dp),
 
                         ){
@@ -672,9 +689,50 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
 
 
                 }
+                Spacer(modifier = Modifier
+                    .height(10.dp)
+                    .fillMaxWidth())
             }
 
         }
+        var canAdd=true
+        if(canAdd) {
+            canAdd = false
+
+            //inja btn done baraye nav be create
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(BTNs)
+                    .height(80.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                BackBTN(navController = navController)
+                Button(
+                    onClick = {
+                        navController.navigate("createPage")
+                    },
+                    modifier = Modifier
+                        .width(260.dp)
+                        .height(60.dp)
+                        .border(2.dp, Color.Green, RoundedCornerShape(10.dp)),
+                    elevation = ButtonDefaults.buttonElevation(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = BTNs),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Icon(
+                        modifier = Modifier.fillMaxSize(),
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = Color.Green
+                    )
+
+                }
+            }
+        }
+
+
     }
 }
 
@@ -732,7 +790,7 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
                     Spacer(modifier = Modifier.height(20.dp))
 
                     //date picker medium.com estefade kardam
-                    val openDialog = remember { mutableStateOf(true) }
+                    val openDialog = remember { mutableStateOf(false) }
                     val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Picker)
 
                     if (openDialog.value) {
@@ -868,3 +926,14 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
 
 }
 
+
+
+@Composable
+fun EditPageComp(navController: NavController,viewmodel: viewmodel){
+    Text(text = "editPage $globalTaskId")
+}
+
+@Composable
+fun ShowSpecificTaskComp(navController: NavController,viewmodel: viewmodel){
+    Text(text = "ShowSpecificTask Page $globalTaskId")
+}

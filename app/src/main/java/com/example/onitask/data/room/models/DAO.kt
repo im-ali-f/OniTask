@@ -1,9 +1,11 @@
 package com.example.onitask.data.room.models
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -25,4 +27,10 @@ interface taskDAO{
 
     @Query("select * FROM task WHERE userIdFk=:userId")
     fun getAllTasks(userId:Int):Flow<List<Task>>
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun completeStatus(task: Task)
+
+    @Delete
+    suspend fun deleteTask(task: Task)
 }
