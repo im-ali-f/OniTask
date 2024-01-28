@@ -34,9 +34,9 @@ class viewmodel(val repo: repo):ViewModel() {
        return repo.getAllTasks(id)
     }
 
-    fun completeStatus(data: Task){
+    fun updateTask(data: Task){
         viewModelScope.launch {
-            repo.completeStatus(data)
+            repo.updateTask(data)
         }
     }
 
@@ -45,4 +45,9 @@ class viewmodel(val repo: repo):ViewModel() {
             repo.deleteTask(data)
         }
     }
+
+    fun getspecificTask(id:Int):Flow<Task>{
+        return repo.getspecificTask(id)
+    }
+
 }

@@ -29,8 +29,11 @@ interface taskDAO{
     fun getAllTasks(userId:Int):Flow<List<Task>>
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun completeStatus(task: Task)
+    suspend fun updateTask(task: Task)
 
     @Delete
     suspend fun deleteTask(task: Task)
+
+    @Query("select * FROM task WHERE task_id=:taskId")
+    fun getSpecificTask(taskId:Int):Flow<Task>
 }

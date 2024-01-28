@@ -19,10 +19,10 @@ data class Task(
     @ColumnInfo(name="task_id")
     @PrimaryKey(autoGenerate = true)
     val id:Int=0,
-    val title:String,
-    val text:String,
-    val date:String,
-    val time:String,
+    var title:String,
+    var text:String,
+    var date:String,
+    var time:String,
     var completed:Boolean=false,
     val userIdFk:Int
 

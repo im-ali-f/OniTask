@@ -74,6 +74,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
@@ -562,7 +563,9 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
         NavBar(navController = navController)
 
         val allTaskQueryResult by viewmodel.getAllTasks(globalId).collectAsState(initial = emptyList())
-        LazyColumn(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f), horizontalAlignment = Alignment.CenterHorizontally) {
+        LazyColumn(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.9f), horizontalAlignment = Alignment.CenterHorizontally) {
 
             items(allTaskQueryResult){
                 var taskBGCColor by remember {
@@ -647,7 +650,7 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
 
                         IconButton(onClick = {
                                              it.completed=if(it.completed)false else true
-                                             viewmodel.completeStatus(it)
+                                             viewmodel.updateTask(it)
                                              taskBGCColor= Color.Red // in aslan mohem nist faghat baraye update colore
                                              } ,
                             modifier = Modifier.size(50.dp),
@@ -928,9 +931,197 @@ fun CreateToDoComp(navController: NavController,viewmodel: viewmodel){
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditPageComp(navController: NavController,viewmodel: viewmodel){
-    Text(text = "editPage $globalTaskId")
+
+
+    val specificTask = viewmodel.getspecificTask(globalTaskId)//inja bbinam chejori mish eaz flow estefade kard
+    var enteredTitle by remember {
+        mutableStateOf("")
+    }
+    var enteredText by remember {
+        mutableStateOf("")
+    }
+    var enteredDateStr by remember {
+        mutableStateOf("")
+    }
+    var enteredTimeStr by remember {
+        mutableStateOf("")
+    }
+
+
+    var scrollStateCol = rememberScrollState()
+    if(globalUsername !=""){
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(secondaryBGC),
+            verticalArrangement = Arrangement.SpaceBetween) {
+            Column {
+
+                NavBar(navController)
+
+
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollStateCol),  horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Edit ToDo id 0", fontWeight = FontWeight.Bold, fontSize = 30.sp, color = BTNs)
+                    TextField(value =enteredTitle ,singleLine=true, maxLines = 1, label = { Text(text = "Title", color = secondary, fontWeight = FontWeight.Bold)}, shape = RoundedCornerShape(10.dp), modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = textFieldfocused2,
+                            unfocusedContainerColor = textFieldUnfocused,
+                            focusedLabelColor = Color.Black),
+                        textStyle = TextStyle(fontSize = 20.sp, color = Color.Black), onValueChange ={ new:String -> enteredTitle=new} )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    TextField(value =enteredText ,singleLine=true, maxLines = 1, label = { Text(text = "Text", color = secondary, fontWeight = FontWeight.Bold)}, shape = RoundedCornerShape(10.dp), modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = textFieldfocused2,
+                            unfocusedContainerColor = textFieldUnfocused,
+                            focusedLabelColor = Color.Black),
+                        textStyle = TextStyle(fontSize = 20.sp, color = Color.Black), onValueChange ={ new:String -> enteredText=new} )
+
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    //date picker medium.com estefade kardam
+                    val openDialog = remember { mutableStateOf(false) }
+                    val dateState = rememberDatePickerState(initialDisplayMode = DisplayMode.Picker)
+
+                    if (openDialog.value) {
+                        DatePickerDialog(
+                            colors = DatePickerDefaults.colors(
+                                containerColor = secondaryBGC,
+                                titleContentColor = secondary,
+                                headlineContentColor = secondary,
+                                weekdayContentColor = textFieldUnfocused
+                            ),
+                            onDismissRequest = { openDialog.value = false },
+                            confirmButton = { TextButton(
+                                onClick = {
+                                    openDialog.value = false
+                                }
+                            ) {
+                                Text("OK")
+                            }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        openDialog.value = false
+                                    }
+                                ) {
+                                    Text("CANCEL")
+                                }
+                            }
+                        ) {
+                            DatePicker(
+                                state = dateState,
+                                title = {Text(text = "select ToDo Date", fontSize = 15.sp, modifier = Modifier.padding(25.dp), color = secondary)},
+                                headline ={Text(text = "Entered date:", fontSize = 35.sp, modifier = Modifier.padding(start = 20.dp, bottom = 20.dp), color = secondary)},
+                                showModeToggle = false,
+                                modifier = Modifier.fillMaxHeight(0.9f)
+                            )
+                        }
+                        var selectedDate=dateState.selectedDateMillis?.let { Instant.ofEpochMilli(it) }
+                        val selectedDateFormater=DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                        if (selectedDate != null) {
+                            enteredDateStr=selectedDateFormater.format(selectedDate.atZone(ZoneId.systemDefault()))
+
+                        }
+                        else{
+                            enteredDateStr="select Date"
+                        }
+                    }
+
+
+                    //show selected Date
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "Date: $enteredDateStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                        //call date picker again
+                        Button(onClick = { openDialog.value=true }
+                            , modifier = Modifier
+                                .width(130.dp)
+                                .height(60.dp), shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = BTNs),
+                            elevation = ButtonDefaults.buttonElevation(10.dp)) {
+                            Text(text = "Select !", fontSize = 20.sp)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(30.dp))
+
+
+
+                    // time Picker
+                    var showTP by remember { mutableStateOf(false) }
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(15.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "Time: $enteredTimeStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                        Button(onClick = {
+                            showTP=true
+                        }
+                            , modifier = Modifier
+                                .width(130.dp)
+                                .height(60.dp), shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = BTNs),
+                            elevation = ButtonDefaults.buttonElevation(10.dp)) {
+                            Text(text = "Select !", fontSize = 20.sp)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(30.dp))
+                    if(showTP){
+                        var timeState = rememberTimePickerState()
+
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
+                            TimeInput(
+                                state = timeState,
+                                colors = TimePickerDefaults.colors(
+                                    timeSelectorSelectedContainerColor = Color.White,
+                                    timeSelectorUnselectedContainerColor=Color.White,
+                                    periodSelectorSelectedContainerColor= BTNs
+                                )
+                            )
+                        }
+                        enteredTimeStr="${timeState.hour}:${timeState.minute}"
+
+                    }
+
+
+
+
+                }
+            }
+
+            //inja btn done baraye nav be todolist
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .background(BTNs)
+                .height(80.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ){
+                BackBTN(navController = navController)
+                Button(onClick = {
+
+                }
+                    , modifier = Modifier
+                        .width(260.dp)
+                        .height(60.dp), shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = secondary),
+                    elevation = ButtonDefaults.buttonElevation(10.dp)) {
+                    Text(text = "Done !", fontSize = 20.sp)
+                }
+            }
+
+        }
+
+    }
 }
 
 @Composable
