@@ -555,9 +555,11 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
                 var taskShadow by remember {
                     mutableStateOf(30.dp)
                 }
-                Spacer(modifier = Modifier.height(10.dp).fillMaxWidth())
+                Spacer(modifier = Modifier
+                    .height(10.dp)
+                    .fillMaxWidth())
                 Row (modifier = Modifier
-                    .fillMaxWidth(0.9f)
+                    .fillMaxWidth(0.95f)
                     .shadow(elevation = taskShadow)
                     .clip(shape = RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
                     .background(taskBGCColor)
@@ -581,6 +583,31 @@ fun ToDoListComp(navController: NavController,viewmodel: viewmodel){
                             }
 
                         }
+                    Spacer(modifier = Modifier
+                        .width(10.dp)
+                        .fillMaxHeight())
+                    Spacer(modifier = Modifier
+                        .width(2.dp)
+                        .background(Color.Gray)
+                        .fillMaxHeight())
+                    Spacer(modifier = Modifier
+                        .width(10.dp)
+                        .fillMaxHeight())
+                    
+                    Box(modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(0.75f)
+                        .padding(5.dp)){
+                        Text(
+                            text = "${it.text}",
+                            modifier = Modifier.fillMaxSize(),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 5,
+                            fontSize = 20.sp,
+                            color= secondary
+                        )
+                    }
+
                     Spacer(modifier = Modifier
                         .width(10.dp)
                         .fillMaxHeight())
