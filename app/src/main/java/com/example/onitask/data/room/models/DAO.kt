@@ -35,5 +35,5 @@ interface taskDAO{
     suspend fun deleteTask(task: Task)
 
     @Query("select * FROM task WHERE task_id=:taskId")
-    fun getSpecificTask(taskId:Int):Flow<Task>
+    fun getTask(taskId:Int):Flow<List<Task>>
 }

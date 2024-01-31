@@ -46,8 +46,8 @@ class viewmodel(val repo: repo):ViewModel() {
         }
     }
 
-    fun getspecificTask(id:Int):Flow<Task>{
-        return repo.getspecificTask(id)
+    fun getspecificTask(id:Int):Flow<List<Task>>{
+        return repo.getTask(id)
     }
 
 }

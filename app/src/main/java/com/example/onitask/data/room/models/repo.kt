@@ -21,5 +21,5 @@ class repo(val db: db) {
         db.taskDAO().deleteTask(task)
     }
 
-    fun getspecificTask(id:Int)=db.taskDAO().getSpecificTask(id)
+    fun getTask(id:Int)=db.taskDAO().getTask(id)
 }
