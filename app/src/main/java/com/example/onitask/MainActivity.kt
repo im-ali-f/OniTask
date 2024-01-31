@@ -868,6 +868,14 @@ fun ToDoListComp(navController: NavController, viewmodel: viewmodel) {
 @Composable
 fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
 
+    var notEnteredTitleBoolean by remember {
+        mutableStateOf(false)
+    }
+    var notEnteredDateBoolean by remember {
+        mutableStateOf(false)
+    }
+
+
     var canAddToDB = true
     var enteredTitle by remember {
         mutableStateOf("")
@@ -906,6 +914,17 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
                         fontSize = 30.sp,
                         color = BTNs
                     )
+                    Spacer(modifier = Modifier.height(3.dp))
+                    if(notEnteredTitleBoolean){
+                        Text(
+                            text = "please enter title",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            color = errorText,
+                            fontSize = 20.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(3.dp))
                     TextField(value = enteredTitle,
                         singleLine = true,
                         maxLines = 1,
@@ -916,6 +935,7 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
                                 fontWeight = FontWeight.Bold
                             )
                         },
+                        isError = notEnteredTitleBoolean,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1005,6 +1025,7 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
                                 modifier = Modifier.fillMaxHeight(0.9f)
                             )
                         }
+
                         var selectedDate =
                             dateState.selectedDateMillis?.let { Instant.ofEpochMilli(it) }
                         val selectedDateFormater = DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -1018,6 +1039,17 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
 
 
                     //show selected Date
+                    Spacer(modifier = Modifier.height(3.dp))
+                    if(notEnteredDateBoolean){
+                        Text(
+                            text = "please enter Date",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            color = errorText,
+                            fontSize = 20.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(3.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -1040,8 +1072,6 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
                     }
                     Spacer(modifier = Modifier.height(30.dp))
                     // time Picker
-
-
                     val timeState = rememberTimePickerState()
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         TimeInput(
@@ -1075,8 +1105,11 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
 
                     //add new task to db
 
-                    if (canAddToDB && enteredDateStr != "select Date" && enteredTitle != "") {
+                    if (canAddToDB && enteredDateStr != "select Date" && enteredDateStr != "" && enteredTitle != "") {
                         canAddToDB = false
+                        notEnteredTitleBoolean=false
+                        notEnteredDateBoolean=false
+
                         viewmodel.createTask(
                             Task(
                                 id = 0,
@@ -1090,6 +1123,18 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
                         )
                         //navigate to toDoList
                         navController.navigate("toDoListPage")
+                    }
+                    if(enteredDateStr=="" || enteredDateStr=="select Date"){
+                        notEnteredDateBoolean=true
+                    }
+                    else{
+                        notEnteredDateBoolean=false
+                    }
+                    if(enteredTitle == ""){
+                        notEnteredTitleBoolean=true
+                    }
+                    else{
+                        notEnteredTitleBoolean=false
                     }
 
 
@@ -1117,8 +1162,16 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
-    val specificTask by viewmodel.getspecificTask(globalTaskId)
-        .collectAsState(initial = emptyList())
+    var notEnteredTitleBoolean by remember {
+        mutableStateOf(false)
+    }
+    var notEnteredDateBoolean by remember {
+        mutableStateOf(false)
+    }
+
+
+    val specificTask by viewmodel.getspecificTask(globalTaskId).collectAsState(initial = emptyList())
+
     for (task in specificTask) {
         var enteredTitle by remember {
             mutableStateOf(task.title)
@@ -1158,6 +1211,19 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
                             fontSize = 30.sp,
                             color = BTNs
                         )
+
+                        Spacer(modifier = Modifier.height(3.dp))
+                        if(notEnteredTitleBoolean){
+                            Text(
+                                text = "please enter title",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                color = errorText,
+                                fontSize = 20.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(3.dp))
+
                         TextField(value = enteredTitle,
                             singleLine = true,
                             maxLines = 1,
@@ -1168,6 +1234,7 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
                                     fontWeight = FontWeight.Bold
                                 )
                             },
+                            isError = notEnteredTitleBoolean,
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1277,6 +1344,17 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
 
 
                         //show selected Date
+                        Spacer(modifier = Modifier.height(3.dp))
+                        if(notEnteredDateBoolean){
+                            Text(
+                                text = "please enter Date",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                color = errorText,
+                                fontSize = 20.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(3.dp))
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1367,19 +1445,36 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
                     BackBTN(navController = navController)
                     Button(
                         onClick = {
-                            viewmodel.updateTask(
-                                Task(
-                                    id = task.id,
-                                    title = enteredTitle,
-                                    text = enteredText,
-                                    date = enteredDateStr,
-                                    time = enteredTimeStr,
-                                    completed = task.completed,
-                                    userIdFk = task.userIdFk
+
+                            if (enteredDateStr != "select Date" && enteredDateStr != "" && enteredTitle != "") {
+                                viewmodel.updateTask(
+                                    Task(
+                                        id = task.id,
+                                        title = enteredTitle,
+                                        text = enteredText,
+                                        date = enteredDateStr,
+                                        time = enteredTimeStr,
+                                        completed = task.completed,
+                                        userIdFk = task.userIdFk
+                                    )
                                 )
-                            )
-                            //navigate to toDoList
-                            navController.navigate("toDoListPage")
+                                //navigate to toDoList
+                                navController.navigate("toDoListPage")
+                            }
+                            if(enteredDateStr=="" || enteredDateStr=="select Date"){
+                                notEnteredDateBoolean=true
+                            }
+                            else{
+                                notEnteredDateBoolean=false
+                            }
+                            if(enteredTitle == ""){
+                                notEnteredTitleBoolean=true
+                            }
+                            else{
+                                notEnteredTitleBoolean=false
+                            }
+
+
                         }, modifier = Modifier
                             .width(260.dp)
                             .height(60.dp), shape = RoundedCornerShape(10.dp),
@@ -1397,7 +1492,163 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowSpecificTaskComp(navController: NavController, viewmodel: viewmodel) {
-    Text(text = "ShowSpecificTask Page $globalTaskId")
+    val specificTask by viewmodel.getspecificTask(globalTaskId).collectAsState(initial = emptyList())
+    for (task in specificTask) {
+        var enteredTitle by remember {
+            mutableStateOf(task.title)
+        }
+        var enteredText by remember {
+            mutableStateOf(task.text)
+        }
+        var enteredDateStr by remember {
+            mutableStateOf(task.date)
+        }
+        var enteredTimeStr by remember {
+            mutableStateOf(task.time)
+        }
+
+
+        var scrollStateCol = rememberScrollState()
+        if (globalUsername != "") {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(secondaryBGC),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                NavBar(navController)
+                Column {
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.8f)
+                            .verticalScroll(scrollStateCol),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Showing ToDo id ${task.id}",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 30.sp,
+                            color = BTNs
+                        )
+                        TextField(value = enteredTitle,
+                            singleLine = true,
+                            maxLines = 1,
+                            label = {
+                                Text(
+                                    text = "Title",
+                                    color = secondary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            enabled = false,
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = textFieldfocused2,
+                                unfocusedContainerColor = textFieldUnfocused,
+                                focusedLabelColor = Color.Black
+                            ),
+                            textStyle = TextStyle(fontSize = 20.sp, color = Color.Black),
+                            onValueChange = { new: String -> enteredTitle = new })
+                        Spacer(modifier = Modifier.height(20.dp))
+                        TextField(value = enteredText,
+                            maxLines = 12,
+                            enabled = false,
+                            label = {
+                                Text(
+                                    text = "Text",
+                                    color = secondary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = textFieldfocused2,
+                                unfocusedContainerColor = textFieldUnfocused,
+                                focusedLabelColor = Color.Black
+                            ),
+                            textStyle = TextStyle(fontSize = 20.sp, color = Color.Black),
+                            onValueChange = { new: String -> enteredText = new })
+
+
+                        Spacer(modifier = Modifier.height(20.dp))
+                        //show selected Date
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(15.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Date: $enteredDateStr",
+                                color = Color.White,
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                        }
+                        Spacer(modifier = Modifier.height(30.dp))
+
+
+                        // time Picker
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(15.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Time: $enteredTimeStr",
+                                color = Color.White,
+                                fontSize = 30.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(30.dp))
+                    }
+
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(BTNs)
+                        .height(80.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    BackBTN(navController = navController)
+                    Button(
+                        onClick = {
+                            //navigate to toDoList
+                            navController.navigate("toDoListPage")
+                        }, modifier = Modifier
+                            .width(260.dp)
+                            .height(60.dp), shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = secondary),
+                        elevation = ButtonDefaults.buttonElevation(10.dp)
+                    ) {
+                        Text(text = "Done !", fontSize = 20.sp)
+                    }
+                }
+
+
+            }
+
+        }
+    }
 }
