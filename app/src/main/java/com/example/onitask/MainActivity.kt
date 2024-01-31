@@ -1,6 +1,15 @@
 package com.example.onitask
 
+import android.Manifest
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.health.connect.datatypes.units.Length
 import android.os.Build
 import android.os.Bundle
@@ -9,8 +18,10 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.R
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -28,6 +39,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,6 +58,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -80,6 +93,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -108,6 +122,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -120,6 +137,8 @@ import com.example.onitask.data.room.models.db
 import com.example.onitask.data.room.models.repo
 import com.example.onitask.repository.viewmodel
 import com.example.onitask.ui.theme.BTNs
+import com.example.onitask.ui.theme.OniTaskTheme
+import com.example.onitask.ui.theme.addBTN
 import com.example.onitask.ui.theme.completeBTN
 import com.example.onitask.ui.theme.deleteBTN
 import com.example.onitask.ui.theme.editBTN
@@ -134,9 +153,11 @@ import com.example.onitask.ui.theme.taskBodyInactive
 import com.example.onitask.ui.theme.textFieldUnfocused
 import com.example.onitask.ui.theme.textFieldfocused
 import com.example.onitask.ui.theme.textFieldfocused2
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.emptyFlow
+import org.jetbrains.annotations.Async
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -156,6 +177,8 @@ class MainActivity : ComponentActivity() {
             val db = db.getInstance(context)
             val repo = repo(db)
             val view = viewmodel(repo)
+            
+
             NavHost(navController = navStat, startDestination = "toDoListPage") {
                 composable(route = "loginSignupPage") {
                     LoginSignupComp(navController = navStat)
@@ -184,6 +207,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+
 //user important informations
 /*
 var globalId=0
@@ -194,6 +218,73 @@ var globalId = 31
 var globalUsername = "ali"
 var globalTaskId = 1
 
+
+@Composable
+fun notificationCenter(navController: NavController,viewmodel: viewmodel){
+    var listToDo = remember {
+        mutableStateListOf<String>()
+    }
+    var counter by remember {
+        mutableStateOf(0)
+    }
+
+   LaunchedEffect(Unit){
+       val threadCatchToDo= Thread{
+           while(true) {
+
+               counter += 1
+               listToDo.add(counter.toString())
+               listToDo.add(counter.toString())
+               Thread.sleep(3000)
+           }
+       }
+       threadCatchToDo.start()
+   }
+    val scrollState= rememberScrollState()
+    if(!listToDo.isEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(150.dp, 250.dp)
+                .verticalScroll(scrollState)
+        ) {
+            for (toDo in listToDo) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(textFieldfocused)
+                        .height(130.dp)
+                        .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp)
+                ) {
+                    Text(text = "notification!$toDo", fontSize = 15.sp, color = Color.White)
+                    Text(
+                        text = "title : test",
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "lorem :::w dwkh kw  wdldwldl dwn kjd w ;wjflk;hj kwhlkfhwklf lkhfwhlk  klwlfhkhf kkhf hwkhflk wlwd hwlddhld jwbbdjk wgdjgwjdg gdwjkgd jkgwdjkdwjk",
+                        fontSize = 20.sp,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3
+                    )
+                }
+
+            }
+        }
+
+        LaunchedEffect(Unit){
+            val threadCatchToDo= Thread{
+                    Thread.sleep(10000)
+                    listToDo.clear()
+            }
+            threadCatchToDo.start()
+        }
+
+    }
+
+}
 
 //backBTN
 @Composable
@@ -635,205 +726,221 @@ fun NavBar(navController: NavController) {
             }
         }
     }
+
 }
 
 //toDoList
 @Composable
 fun ToDoListComp(navController: NavController, viewmodel: viewmodel) {
+
+
+
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
         NavBar(navController = navController)
 
-        val allTaskQueryResult by viewmodel.getAllTasks(globalId)
-            .collectAsState(initial = emptyList())
-        LazyColumn(
+
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.9f), horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            items(allTaskQueryResult) {
-                var taskBGCColor by remember {
-                    mutableStateOf(taskBodyActive)
-                }
-                taskBGCColor = if (it.completed) taskBodyInactive else taskBodyActive
 
-                var taskShadow by remember {
-                    mutableStateOf(30.dp)
-                }
-                Spacer(
-                    modifier = Modifier
-                        .height(10.dp)
-                        .fillMaxWidth()
-                )
-                Row(modifier = Modifier
-                    .fillMaxWidth(0.95f)
-                    .shadow(elevation = taskShadow)
-                    .clip(shape = RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
-                    .background(taskBGCColor)
-                    .clickable {
-                        globalTaskId = it.id
-                        navController.navigate("showSpecificTaskPage")
+            notificationCenter(navController = navController, viewmodel = viewmodel)
+
+
+            val allTaskQueryResult by viewmodel.getAllTasks(globalId)
+                .collectAsState(initial = emptyList())
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                items(allTaskQueryResult) {
+                    var taskBGCColor by remember {
+                        mutableStateOf(taskBodyActive)
                     }
-                    .border(2.dp, BTNs, RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
-                    .height(150.dp)
-                    .padding(top = 5.dp, start = 10.dp, bottom = 5.dp, end = 10.dp)
-                ) {
+                    taskBGCColor = if (it.completed) taskBodyInactive else taskBodyActive
 
-                    Column(
+                    var taskShadow by remember {
+                        mutableStateOf(30.dp)
+                    }
+                    Spacer(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(0.25f),
-                        verticalArrangement = Arrangement.SpaceEvenly,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .height(10.dp)
+                            .fillMaxWidth()
+                    )
+                    Row(modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .shadow(elevation = taskShadow)
+                        .clip(shape = RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
+                        .background(taskBGCColor)
+                        .clickable {
+                            globalTaskId = it.id
+                            navController.navigate("showSpecificTaskPage")
+                        }
+                        .border(2.dp, BTNs, RoundedCornerShape(5.dp, 20.dp, 20.dp, 5.dp))
+                        .height(150.dp)
+                        .padding(top = 5.dp, start = 10.dp, bottom = 5.dp, end = 10.dp)
                     ) {
-                        Text(
-                            text = "${it.title}",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontSize = 25.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+
                         Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.SpaceEvenly
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(0.25f),
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "${it.date}",
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth(),
-                                fontSize = 15.sp,
+                                text = "${it.title}",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                fontSize = 25.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = secondary
+                                color = Color.White
                             )
-                            Text(
-                                text = "${it.time}",
-                                textAlign = TextAlign.Center,
+                            Column(
                                 modifier = Modifier.fillMaxWidth(),
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = secondary
-                            )
-                        }
-
-                    }
-                    Spacer(
-                        modifier = Modifier
-                            .width(10.dp)
-                            .fillMaxHeight()
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .width(2.dp)
-                            .background(Color.Gray)
-                            .fillMaxHeight()
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .width(10.dp)
-                            .fillMaxHeight()
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(0.75f)
-                            .padding(5.dp)
-                    ) {
-                        Text(
-                            text = "${it.text}",
-                            modifier = Modifier.fillMaxSize(),
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 5,
-                            fontSize = 20.sp,
-                            color = secondary
-                        )
-                    }
-
-                    Spacer(
-                        modifier = Modifier
-                            .width(10.dp)
-                            .fillMaxHeight()
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .background(Color.Gray)
-                            .fillMaxHeight()
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .width(10.dp)
-                            .fillMaxHeight()
-                    )
-
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        IconButton(
-                            onClick = {
-                                it.completed = if (it.completed) false else true
-                                viewmodel.updateTask(it)
-                                taskBGCColor =
-                                    Color.Red // in aslan mohem nist faghat baraye update colore
-                            },
-                            modifier = Modifier.size(50.dp),
-                        ) {
-                            Icon(
-                                modifier = Modifier.fillMaxSize(),
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = null,
-                                tint = completeBTN,
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                globalTaskId = it.id
-                                navController.navigate("editPage")
-                            },
-                            modifier = Modifier.size(50.dp),
-                        ) {
-                            Icon(
-                                modifier = Modifier.fillMaxSize(),
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                tint = editBTN
-                            )
-                        }
-
-                        IconButton(
-                            onClick = {
-                                viewmodel.deleteTask(it)
-                            },
-                            modifier = Modifier.size(50.dp),
-
+                                verticalArrangement = Arrangement.SpaceEvenly
                             ) {
-                            Icon(
+                                Text(
+                                    text = "${it.date}",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = secondary
+                                )
+                                Text(
+                                    text = "${it.time}",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = secondary
+                                )
+                            }
+
+                        }
+                        Spacer(
+                            modifier = Modifier
+                                .width(10.dp)
+                                .fillMaxHeight()
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .width(2.dp)
+                                .background(Color.Gray)
+                                .fillMaxHeight()
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .width(10.dp)
+                                .fillMaxHeight()
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(0.75f)
+                                .padding(5.dp)
+                        ) {
+                            Text(
+                                text = "${it.text}",
                                 modifier = Modifier.fillMaxSize(),
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = null,
-                                tint = deleteBTN
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 5,
+                                fontSize = 20.sp,
+                                color = secondary
                             )
                         }
 
+                        Spacer(
+                            modifier = Modifier
+                                .width(10.dp)
+                                .fillMaxHeight()
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .background(Color.Gray)
+                                .fillMaxHeight()
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .width(10.dp)
+                                .fillMaxHeight()
+                        )
+
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            IconButton(
+                                onClick = {
+                                    it.completed = if (it.completed) false else true
+                                    viewmodel.updateTask(it)
+                                    taskBGCColor =
+                                        Color.Red // in aslan mohem nist faghat baraye update colore
+                                },
+                                modifier = Modifier.size(50.dp),
+                            ) {
+                                Icon(
+                                    modifier = Modifier.fillMaxSize(),
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    tint = completeBTN,
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    globalTaskId = it.id
+                                    navController.navigate("editPage")
+                                },
+                                modifier = Modifier.size(50.dp),
+                            ) {
+                                Icon(
+                                    modifier = Modifier.fillMaxSize(),
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = editBTN
+                                )
+                            }
+
+                            IconButton(
+                                onClick = {
+                                    viewmodel.deleteTask(it)
+                                },
+                                modifier = Modifier.size(50.dp),
+
+                                ) {
+                                Icon(
+                                    modifier = Modifier.fillMaxSize(),
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = deleteBTN
+                                )
+                            }
+
+                        }
+
+
                     }
-
-
+                    Spacer(
+                        modifier = Modifier
+                            .height(10.dp)
+                            .fillMaxWidth()
+                    )
                 }
-                Spacer(
-                    modifier = Modifier
-                        .height(10.dp)
-                        .fillMaxWidth()
-                )
-            }
 
+            }
         }
         var canAdd = true
         if (canAdd) {
@@ -856,7 +963,7 @@ fun ToDoListComp(navController: NavController, viewmodel: viewmodel) {
                     modifier = Modifier
                         .width(260.dp)
                         .height(60.dp)
-                        .border(2.dp, Color.Green, RoundedCornerShape(10.dp)),
+                        .border(2.dp, addBTN, RoundedCornerShape(10.dp)),
                     elevation = ButtonDefaults.buttonElevation(10.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BTNs),
                     shape = RoundedCornerShape(10.dp)
@@ -865,7 +972,7 @@ fun ToDoListComp(navController: NavController, viewmodel: viewmodel) {
                         modifier = Modifier.fillMaxSize(),
                         imageVector = Icons.Default.Add,
                         contentDescription = null,
-                        tint = Color.Green
+                        tint = addBTN
                     )
 
                 }
