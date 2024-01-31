@@ -4,9 +4,11 @@ import android.app.TimePickerDialog
 import android.health.connect.datatypes.units.Length
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.R
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.annotation.RequiresApi
@@ -195,10 +197,10 @@ var globalTaskId = 1
 
 //backBTN
 @Composable
-fun BackBTN(navController: NavController) {
+fun BackBTN(navController: NavController,selectedNav:String) {
     Box() {
         FloatingActionButton(
-            onClick = { navController.popBackStack() },
+            onClick = { navController.navigate(selectedNav) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .width(60.dp)
@@ -217,6 +219,16 @@ fun BackBTN(navController: NavController) {
 //login sign up page
 @Composable
 fun LoginSignupComp(navController: NavController) {
+
+    BackHandler(true) {
+        // Or do nothing
+        Log.i("LOG_TAG", "Clicked back")
+    }
+
+    globalId=0
+    globalUsername=""
+    globalTaskId=0
+
     val intract = remember {
         MutableInteractionSource()
     }
@@ -278,6 +290,7 @@ fun LoginSignupComp(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginComp(navController: NavController, viewmodel: viewmodel) {
+
 
     var enteredUsername by remember {
         mutableStateOf("")
@@ -373,7 +386,7 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel) {
         //submit button
         val x = LocalContext.current.applicationContext
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            BackBTN(navController = navController)
+            BackBTN(navController = navController,"loginSignupPage")
             Button(
                 onClick = {
 
@@ -515,7 +528,7 @@ fun SignupComp(navController: NavController, viewmodel: viewmodel) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                BackBTN(navController = navController)
+                BackBTN(navController = navController,"loginSignupPage")
                 Button(
                     onClick = {
                         if (userExistanceQueryResult.isEmpty()) {
@@ -835,7 +848,7 @@ fun ToDoListComp(navController: NavController, viewmodel: viewmodel) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                BackBTN(navController = navController)
+                BackBTN(navController = navController,"loginSignupPage")
                 Button(
                     onClick = {
                         navController.navigate("createPage")
@@ -1100,7 +1113,7 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                BackBTN(navController = navController)
+                BackBTN(navController = navController,"toDoListPage")
                 Button(onClick = {
 
                     //add new task to db
@@ -1442,7 +1455,7 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    BackBTN(navController = navController)
+                    BackBTN(navController = navController,"toDoListPage")
                     Button(
                         onClick = {
 
@@ -1631,7 +1644,7 @@ fun ShowSpecificTaskComp(navController: NavController, viewmodel: viewmodel) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    BackBTN(navController = navController)
+                    BackBTN(navController = navController,"toDoListPage")
                     Button(
                         onClick = {
                             //navigate to toDoList
