@@ -22,4 +22,6 @@ class repo(val db: db) {
     }
 
     fun getTask(id:Int)=db.taskDAO().getTask(id)
+
+    fun getTaskTime(time:String,date:String,userId: Int)=db.taskDAO().getTaskByTime(time,date,userId)
 }

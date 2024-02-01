@@ -36,4 +36,7 @@ interface taskDAO{
 
     @Query("select * FROM task WHERE task_id=:taskId")
     fun getTask(taskId:Int):Flow<List<Task>>
+
+    @Query ("select * FROM task WHERE time=:time AND date=:date AND userIdFk=:userId")
+    fun getTaskByTime(time:String,date:String,userId: Int):Flow<List<Task>>
 }

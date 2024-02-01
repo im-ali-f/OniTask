@@ -27,6 +27,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -105,8 +106,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -153,6 +156,7 @@ import com.example.onitask.ui.theme.taskBodyInactive
 import com.example.onitask.ui.theme.textFieldUnfocused
 import com.example.onitask.ui.theme.textFieldfocused
 import com.example.onitask.ui.theme.textFieldfocused2
+import com.example.onitask.ui.theme.toDoListBGC
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
@@ -160,6 +164,8 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.annotations.Async
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -177,9 +183,9 @@ class MainActivity : ComponentActivity() {
             val db = db.getInstance(context)
             val repo = repo(db)
             val view = viewmodel(repo)
-            
 
-            NavHost(navController = navStat, startDestination = "toDoListPage") {
+
+            NavHost(navController = navStat, startDestination = "loginSignupPage") {
                 composable(route = "loginSignupPage") {
                     LoginSignupComp(navController = navStat)
                 }
@@ -209,80 +215,114 @@ class MainActivity : ComponentActivity() {
 
 
 //user important informations
-/*
+
 var globalId=0
 var globalUsername=""
 var globalTaskId=0
-*/
+/*
 var globalId = 31
 var globalUsername = "ali"
 var globalTaskId = 1
+*/
 
-
+//in har seri load kone notif haro ba ye timei
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun notificationCenter(navController: NavController,viewmodel: viewmodel){
-    var listToDo = remember {
-        mutableStateListOf<String>()
+
+    val pattern = DateTimeFormatter.ofPattern("HH:mm")
+    val patternDate= DateTimeFormatter.ofPattern("dd-MM-yyyy")
+    var time by remember {
+        mutableStateOf(LocalTime.now().format(pattern))
+    }
+    var date by remember {
+        mutableStateOf(LocalDate.now().format(patternDate))
+    }
+    val listNotif by viewmodel.getTaskByTime(time,date, globalId).collectAsState(initial = emptyList())
+    var notifTime by remember {
+        mutableStateOf(true)
     }
     var counter by remember {
         mutableStateOf(0)
     }
+    var canToast=false
+            LaunchedEffect(Unit){
+                val getTime=Thread{
+                    while (true){
+                        counter+=1
+                        if (time != LocalTime.now().format(pattern) ){
+                            time=LocalTime.now().format(pattern)
+                            canToast=true
+                        }
+                        Thread.sleep(500)
+                    }
 
-   LaunchedEffect(Unit){
-       val threadCatchToDo= Thread{
-           while(true) {
-
-               counter += 1
-               listToDo.add(counter.toString())
-               listToDo.add(counter.toString())
-               Thread.sleep(3000)
-           }
-       }
-       threadCatchToDo.start()
-   }
-    val scrollState= rememberScrollState()
-    if(!listToDo.isEmpty()) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(150.dp, 250.dp)
-                .verticalScroll(scrollState)
-        ) {
-            for (toDo in listToDo) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(textFieldfocused)
-                        .height(130.dp)
-                        .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 10.dp)
-                ) {
-                    Text(text = "notification!$toDo", fontSize = 15.sp, color = Color.White)
-                    Text(
-                        text = "title : test",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Text(
-                        text = "lorem :::w dwkh kw  wdldwldl dwn kjd w ;wjflk;hj kwhlkfhwklf lkhfwhlk  klwlfhkhf kkhf hwkhflk wlwd hwlddhld jwbbdjk wgdjgwjdg gdwjkgd jkgwdjkdwjk",
-                        fontSize = 20.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3
-                    )
                 }
-
+                getTime.start()
             }
-        }
+            //Text(text = time +"  "+counter +"  "+date+"  "+listNotif)
+            val x= LocalContext.current.applicationContext
+           val scrollState = rememberScrollState()
+           if (!listNotif.isEmpty()) {
+               for(toDo in listNotif) {
+                   if(!toDo.completed && notifTime) {
+                       if(canToast){
+                           Toast.makeText(x,"its time to do : ${toDo.title}",Toast.LENGTH_LONG).show()}
+                       Column(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .heightIn(150.dp, 250.dp)
+                               .verticalScroll(scrollState)
+                       ) {
+                           for (toDo in listNotif) {
+                               Column(
+                                   modifier = Modifier
+                                       .fillMaxWidth()
+                                       .background(textFieldfocused)
+                                       .height(130.dp)
+                                       .padding(
+                                           start = 20.dp,
+                                           end = 20.dp,
+                                           top = 10.dp,
+                                           bottom = 10.dp
+                                       )
+                               ) {
+                                   Text(
+                                       text = "notification! its time to do :",
+                                       fontSize = 15.sp,
+                                       color = Color.White
+                                   )
+                                   Text(
+                                       text = "title : ${toDo.title}",
+                                       fontSize = 25.sp,
+                                       fontWeight = FontWeight.Bold,
+                                       color = Color.White
+                                   )
+                                   Text(
+                                       text = "${toDo.text}",
+                                       fontSize = 20.sp,
+                                       overflow = TextOverflow.Ellipsis,
+                                       maxLines = 3
+                                   )
+                               }
 
-        LaunchedEffect(Unit){
-            val threadCatchToDo= Thread{
-                    Thread.sleep(10000)
-                    listToDo.clear()
-            }
-            threadCatchToDo.start()
-        }
+                           }
+                       }
+                   }
+                   break
+               }
+               /*LaunchedEffect(Unit) {
+                   val threadCatchToDo = Thread {
+                       notifTime=true
+                       Thread.sleep(10000)
+                        notifTime=false
+                   }
+                   threadCatchToDo.start()
+               }*/
 
-    }
+           }
+    canToast=false
+
 
 }
 
@@ -475,7 +515,7 @@ fun LoginComp(navController: NavController, viewmodel: viewmodel) {
         )
         Spacer(modifier = Modifier.height(20.dp))
         //submit button
-        val x = LocalContext.current.applicationContext
+
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             BackBTN(navController = navController,"loginSignupPage")
             Button(
@@ -730,6 +770,7 @@ fun NavBar(navController: NavController) {
 }
 
 //toDoList
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ToDoListComp(navController: NavController, viewmodel: viewmodel) {
 
@@ -742,7 +783,8 @@ fun ToDoListComp(navController: NavController, viewmodel: viewmodel) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.9f), horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxHeight(0.9f)
+                .background(toDoListBGC), horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
 
@@ -1010,16 +1052,23 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
         mutableStateOf("")
     }
 
-
+    val focusManager = LocalFocusManager.current
     var scrollStateCol = rememberScrollState()
     if (globalUsername != "") {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(secondaryBGC),
+                .background(secondaryBGC)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })}
+            ,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             NavBar(navController)
+            notificationCenter(navController = navController, viewmodel = viewmodel)
+
             Column {
                 Column(
                     modifier = Modifier
@@ -1203,8 +1252,23 @@ fun CreateToDoComp(navController: NavController, viewmodel: viewmodel) {
                             )
                         )
                     }
-                    enteredTimeStr = "${timeState.hour}:${timeState.minute}"
 
+                    if(timeState.hour<10){
+                        if(timeState.minute<10){
+                            enteredTimeStr = "0${timeState.hour}:0${timeState.minute}"
+                        }
+                        else{
+                            enteredTimeStr = "0${timeState.hour}:${timeState.minute}"
+                        }
+                    }
+                    else{
+                        if(timeState.minute<10){
+                            enteredTimeStr = "${timeState.hour}:0${timeState.minute}"
+                        }
+                        else{
+                            enteredTimeStr = "${timeState.hour}:${timeState.minute}"
+                        }
+                    }
                     //Text(text = "Time: $enteredTimeStr", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
 
 
@@ -1306,16 +1370,22 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
             mutableStateOf(task.time)
         }
 
-
+        val focusManager = LocalFocusManager.current
         var scrollStateCol = rememberScrollState()
         if (globalUsername != "") {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(secondaryBGC),
+                    .background(secondaryBGC)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            focusManager.clearFocus()
+                        })},
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 NavBar(navController)
+                notificationCenter(navController = navController, viewmodel = viewmodel)
+
                 Column {
 
                     Column(
@@ -1325,6 +1395,7 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
                             .verticalScroll(scrollStateCol),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+
                         Text(
                             text = "Edit ToDo id ${task.id}",
                             fontWeight = FontWeight.Bold,
@@ -1546,7 +1617,22 @@ fun EditPageComp(navController: NavController, viewmodel: viewmodel) {
                                     )
                                 )
                             }
-                            enteredTimeStr = "${timeState.hour}:${timeState.minute}"
+                            if(timeState.hour<10){
+                                if(timeState.minute<10){
+                                    enteredTimeStr = "0${timeState.hour}:0${timeState.minute}"
+                                }
+                                else{
+                                    enteredTimeStr = "0${timeState.hour}:${timeState.minute}"
+                                }
+                            }
+                            else{
+                                if(timeState.minute<10){
+                                    enteredTimeStr = "${timeState.hour}:0${timeState.minute}"
+                                }
+                                else{
+                                    enteredTimeStr = "${timeState.hour}:${timeState.minute}"
+                                }
+                            }
 
                         }
 
@@ -1641,6 +1727,8 @@ fun ShowSpecificTaskComp(navController: NavController, viewmodel: viewmodel) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 NavBar(navController)
+                notificationCenter(navController = navController, viewmodel = viewmodel)
+
                 Column {
 
                     Column(

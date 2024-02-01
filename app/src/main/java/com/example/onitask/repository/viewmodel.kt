@@ -50,4 +50,8 @@ class viewmodel(val repo: repo):ViewModel() {
         return repo.getTask(id)
     }
 
+    fun getTaskByTime(time:String,date:String,userId: Int):Flow<List<Task>>{
+        return  repo.getTaskTime(time,date,userId)
+    }
+
 }
